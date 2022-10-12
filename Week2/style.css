@@ -1,0 +1,31 @@
+p{
+    color: green; 
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+
+}
+h3,h2,h5{
+    color: blue;
+    font-family: sans-serif;
+    background-color: aquamarine;
+    text-align: center;
+    border-radius: 9px;
+
+}
+body{
+background-color: white;
+}
+a:link{
+color: darkblue;
+text-decoration: none;
+
+}
+a:visited{
+color: darkblue;
+text-decoration: none;
+}
+a:hover{
+text-decoration: underline
+}
+a:active{
+color: yellow;
+}
