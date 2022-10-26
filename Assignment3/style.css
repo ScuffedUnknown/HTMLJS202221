@@ -1,0 +1,25 @@
+body{
+    background-color: aliceblue;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    font-size: large;
+    color: #7171A1;
+}
+.container{
+    width: 970px;
+    padding: 10px;
+}
+h1{
+    width: 950px;
+    padding: 10px;
+    text-align: center;
+    background-color: azure;
+    border: darkgray dashed 10px;
+}
+.sections{
+    width: 950px;
+    padding: 10px;
+    background-color: azure;
+}
+img{
+    border: 3px black solid;
+}
