@@ -47,7 +47,7 @@ ctx.stroke()
 ctx.fill()
 
 
-var mario = new Image()
+//var mario = new Image()
 mario.src = "images/mario-sprite-super-mario-bros-1-mario-1156289219229b0n5zjzl.png"
 
 mario.onload = function(){
