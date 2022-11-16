@@ -1,7 +1,8 @@
 var canvas = document.getElementById("c")
 var ctx = canvas.getContext("2d")
-ctx.font= "100px serif"
+ctx.font= "100px Arial"
 ctx.textAlign = "center";
+ctx.fillStyle = "rgb(213,110,20)"
 //Array of words
 var rps = [];
 rps[0] = `Rock` 
@@ -41,18 +42,24 @@ function play(pChoice)
             if(cChoice === 0)
             {
                 //display a tie
+                ctx.clearRect(0,0,canvas.width,canvas.height)
                 ctx.fillText("You Tied", 500, 300)
-                
+
+
             }
             else if(cChoice === 1)
             {
                 //display a loss
+                ctx.clearRect(0,0,canvas.width,canvas.height)
                 ctx.fillText("You Lost", 500, 300)
+
             }
             else
             {
                 //display a win
+                ctx.clearRect(0,0,canvas.width,canvas.height)
                 ctx.fillText("You Won", 500, 300)
+
             }
             break;
 
@@ -60,17 +67,20 @@ function play(pChoice)
                 if(cChoice === 0)
                 {
                     //display a tie
-                    alert(`You Win`)
+                    ctx.clearRect(0,0,canvas.width,canvas.height)
+                    ctx.fillText("You Won", 500, 300)
                 }
                 else if(cChoice === 1)
                 {
                     //display a loss
-                    alert(`Tie`)
+                    ctx.clearRect(0,0,canvas.width,canvas.height)
+                    ctx.fillText("You Tied", 500, 300)
                 }
                 else
                 {
                     //display a win
-                    alert(`You Lost`)
+                    ctx.clearRect(0,0,canvas.width,canvas.height)
+                    ctx.fillText("You Lost", 500, 300)
                 } 
             break;
 
@@ -78,17 +88,20 @@ function play(pChoice)
                 if(cChoice === 0)
                 {
                     //display a tie
-                    alert(`You Lost`)
+                    ctx.clearRect(0,0,canvas.width,canvas.height)
+                    ctx.fillText("You Lost", 500, 300)
                 }
                 else if(cChoice === 1)
                 {
                     //display a loss
-                    alert(`You Win`)
+                    ctx.clearRect(0,0,canvas.width,canvas.height)
+                    ctx.fillText("You Won", 500, 300)
                 }
                 else
                 {
                     //display a win
-                    alert(`You Tie`)
+                    ctx.clearRect(0,0,canvas.width,canvas.height)
+                    ctx.fillText("You Tied", 500, 300)
                 }
              break;
     }
