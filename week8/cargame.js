@@ -5,19 +5,22 @@ var timer = requestAnimationFrame(main);
 
 var start = 50
 var finish = 750 
-
+var speed = 5
 var carPOS = 2
 var startFuel = randomNumber(canvas.width,600)
 var fuel = startFuel
 var fuelBarWidth = 300
 var gameOver = true
-
+var carWidth = 50
 var seconds =3
 var fps =60
 var frames=fps
 
-
-
+var carSpirte = new Image()
+carSpirte.src = 'images/car.png'
+carSpirte.onload = function(){
+    main()
+}
 
 document.addEventListener("keydown",pressSpace)
 function pressSpace(e){
@@ -49,7 +52,7 @@ ctx.restore()
         fuel--
     }}
     drawFuelBar()
-    if(fuel<=0 || carPOS +40>finish){
+    if(fuel<=0 || carPOS +carWidth>finish){
         drawResults()
     }
 }
@@ -65,7 +68,8 @@ ctx.fillRect(finish,50,10,500)
 
 function drawCar(){
     ctx.fillStyle = 'red'
-    ctx.fillRect(carPOS,canvas.height/2,40,20)
+    //ctx.fillRect(carPOS,canvas.height/2,carWidth,20)
+    ctx.drawImage(carSpirte,carPOS,canvas.height/2,carWidth,20)
 }
 function drawFuelBar(){
     var currentBarWidth = fuelBarWidth * (fuel/startFuel)
@@ -83,7 +87,7 @@ function drawFuelBar(){
     }
 }
 function drawResults(){
-    if(carPOS +40 > finish){
+    if(carPOS + carWidth > finish){
         ctx.save()
         ctx.fillStyle='black'
         ctx.font =" 25px Arial"
@@ -133,7 +137,7 @@ function drawStartTimer(){
     ctx.fillStyle='black'
     ctx.font='30px Arial'
     ctx.textAlign ='center'
-    ctx.fillText('GO!!!',canvas.width/2,canvas.height/2)
+    ctx.fillText('GO!!!?>" 5                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             ',canvas.width/2,canvas.height/2)
 
     ctx.restore()
 
