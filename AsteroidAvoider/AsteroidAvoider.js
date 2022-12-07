@@ -249,6 +249,9 @@ while(asteroids.length<numAsteroid){
  asteroids.push(new Asteroid());
 } 
 }
+gameState[2] = function(){
+    
+}
 function main(){
     ctx.clearRect(0,0,canvas.width,canvas.height)
     gameState[currentState]();
