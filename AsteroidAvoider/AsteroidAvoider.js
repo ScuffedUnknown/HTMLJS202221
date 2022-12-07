@@ -9,7 +9,7 @@ var numAsteroid = 20
 var asteroids = [];
 var gameState = [];
 var ship = new PlayerShip()
-var gameOver = false
+var gameOver = true
 var currentState = 0
 var score = 0
 var highscore = 0
@@ -99,7 +99,9 @@ function pressKeyDown(e) {
             //ship goes down
             ship.down = true
         }
-        if(!    gameOver){
+    }
+    if (gameOver) {
+
         if (e.keyCode == 32) {
             if (currentState == 2) {
                 //from gameover screen
@@ -107,9 +109,10 @@ function pressKeyDown(e) {
                 numAsteroid = 20
                 score = 0
                 asteroids = []
+               
                 gameStart()
-                main(``)
-            }else {
+                main()
+            } else {
                 //from main menu
                 gameOver = false
                 currentState = 1
@@ -117,7 +120,6 @@ function pressKeyDown(e) {
                 main()
             }
 
-        }
         }
     }
 }
@@ -190,7 +192,7 @@ function scoreTimer() {
         score++
         if (score % 5 == 0) {
             numAsteroid += 10
-        
+
 
         }
         setTimeout(scoreTimer, 1000)
@@ -240,6 +242,8 @@ gameState[1] = function () {
         if (detectCollsion(distance, (ship.height / 2 + asteroids[i].radius))) {
             gameOver = true
             currentState = 2
+            main();
+            return
             //alert("Hit asteroid Game Over")
         }
         if (asteroids[i].y > canvas.height + asteroids[i].radius) {
@@ -251,16 +255,14 @@ gameState[1] = function () {
     }
     ship.moveShip()
     ship.drawShip();
-    if (!gameOver) {
-        timer = requestAnimationFrame(main)
-    }
+
     while (asteroids.length < numAsteroid) {
         //add and create new asteroids
         asteroids.push(new Asteroid());
     }
 }
 gameState[2] = function () {
-    if(score >highscore){
+    if (score > highscore) {
         highscore = score
         ctx.save()
         ctx.fillStyle = 'white'
@@ -272,24 +274,27 @@ gameState[2] = function () {
         ctx.font = '15px Arial'
         ctx.fillText("PRESS SPACE TO RESTART", canvas.width / 2, canvas.height / 2 + 20)
         ctx.restore()
-       
+
     }
-    else{
+    else {
         ctx.save()
         ctx.fillStyle = 'white'
         ctx.font = '30px Arial'
         ctx.textAlign = 'center'
         ctx.fillText('You Crashed, your score was:' + score.toString(), canvas.width / 2, canvas.height / 2 - 60)
-        ctx.fillText('Your  high score is:' + highscore.toString(), canvas.width / 2, canvas.height / 2 - 30)
+        ctx.fillText('Your high score is:' + highscore.toString(), canvas.width / 2, canvas.height / 2 - 30)
         ctx.font = '15px Arial'
         ctx.fillText("PRESS SPACE TO RESTART", canvas.width / 2, canvas.height / 2 + 20)
         ctx.restore()
+    }
 }
-} 
 
 function main() {
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     gameState[currentState]();
+    if (!gameOver) {
+        timer = requestAnimationFrame(main)
+    }
 
 }
 function gameStart() {
