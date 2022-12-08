@@ -2,14 +2,19 @@ var canvas = document.getElementById("canvas")
 var ctx = canvas.getContext("2d")
 
 var timer = requestAnimationFrame(main);
+var bg = new Image()
+bg.src = "images/background.png"
+bg.onload = function(){
+    main()
+}
 
-var start = 50
-var finish = 750 
+var start = 58
+var finish = 956 
 var speed = 5
 var carPOS = 3
-var startFuel = randomNumber(canvas.width,600)
+var startFuel = 965//randomNumber(canvas.width,600)
 var fuel = startFuel
-var fuelBarWidth = 300
+var fuelBarWidth = 512
 var gameOver = true
 var carWidth = 50
 var seconds =3
@@ -32,7 +37,9 @@ function pressSpace(e){
     }
 }
 function main(){
+
 ctx.clearRect(0,0,canvas.width,canvas.height)
+ctx.drawImage(bg,0,0)
 if(gameOver){
 ctx.save()
 ctx.fillStyle = 'black'
@@ -61,9 +68,9 @@ timer = requestAnimationFrame(main)
 }
 
 function drawStartFinishLines(){
-    ctx.fillStyle = 'black'
-ctx.fillRect(start,50,10,500)
-ctx.fillRect(finish,50,10,500)
+    ctx.fillStyle = 'white'
+ctx.fillRect(start,150,10,454)
+ctx.fillRect(finish,150,10,454)
 }
 
 function drawCar(){
@@ -81,7 +88,7 @@ function drawFuelBar(){
     ctx.fillText("FUEL",start,25
     )
     if(fuel>0){
-        ctx.fillStyle='green'
+        ctx.fillStyle='#00E3FF'
         ctx.fillRect(start,30,currentBarWidth,10)
     
     }
