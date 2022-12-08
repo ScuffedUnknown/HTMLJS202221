@@ -6,7 +6,7 @@ var timer = requestAnimationFrame(main);
 var start = 50
 var finish = 750 
 var speed = 5
-var carPOS = 2
+var carPOS = 3
 var startFuel = randomNumber(canvas.width,600)
 var fuel = startFuel
 var fuelBarWidth = 300
@@ -36,7 +36,7 @@ ctx.clearRect(0,0,canvas.width,canvas.height)
 if(gameOver){
 ctx.save()
 ctx.fillStyle = 'black'
-ctx.font = '30px Arial'
+ctx.font = '30px Hanken Grotesk'
 ctx.textAlign='center'
 ctx.fillText("Press Space to Start",canvas.width/2,canvas.height/2)
 ctx.restore()
@@ -77,7 +77,7 @@ function drawFuelBar(){
     
 
     ctx.fillRect(start,30,fuelBarWidth,10)
-    ctx.font = '25px Arial'
+    ctx.font = '25px Hanken Grotesk'
     ctx.fillText("FUEL",start,25
     )
     if(fuel>0){
@@ -90,7 +90,7 @@ function drawResults(){
     if(carPOS + carWidth > finish){
         ctx.save()
         ctx.fillStyle='black'
-        ctx.font =" 25px Arial"
+        ctx.font =" 25px Hanken Grotesk"
         ctx.textAlign = 'center'
         ctx.fillText('You made it to the finish.. You Win',canvas.width/2,canvas.height/2)
         ctx.restore()
@@ -98,7 +98,7 @@ function drawResults(){
     else{
         ctx.save()
     ctx.fillStyle='black'
-    ctx.font =" 25px Arial"
+    ctx.font =" 25px Hanken Grotesk"
     ctx.textAlign = 'center'
     ctx.fillText('You ran out of fuel.. You Lost',canvas.width/2,canvas.height/2)
         ctx.restore()
@@ -124,7 +124,7 @@ function drawStartTimer(){
 
         ctx.save()
         ctx.fillStyle='black'
-        ctx.font='30px Arial'
+        ctx.font='30px Hanken Grotesk'
         ctx.textAlign ='center'
         ctx.fillText(seconds,canvas.width/2,canvas.height/2)
     
@@ -135,7 +135,7 @@ function drawStartTimer(){
 
     ctx.save()
     ctx.fillStyle='black'
-    ctx.font='30px Arial'
+    ctx.font='30px Hanken Grotesk'
     ctx.textAlign ='center'
     ctx.fillText('GO!!!?>" 5                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             ',canvas.width/2,canvas.height/2)
 
