@@ -1,0 +1,17 @@
+h1,footer{
+    display: flex;
+    color: whitesmoke;
+    font-family: 'Roboto Mono', monospace;
+    justify-content: center;
+}
+html,body{
+    display: flex;
+    justify-content: center;
+    background-image:url(images/photo-1534796636912-3b95b3ab5986.png);
+}
+#canvas{
+    border: 1px solid blue;
+}
+#container{
+    background-color: rgb(0, 0, 0);
+}

@@ -1,7 +1,21 @@
 var canvas = document.getElementById("canvas")
 var ctx = canvas.getContext('2d')
 var timer = requestAnimationFrame(main)
-var ship
+var shipSprite = new Image()
+shipSprite.src = "images/SHip.png"
+shipSprite.onload = function(){
+    main()
+}
+var asteroidSprite = new Image
+asteroidSprite.src = "images/asteroid.png"
+asteroidSprite.onload = function(){
+    main()
+}
+var StartScreen = new Image()
+StartScreen.src = "images/Start.png"
+StartScreen.onload = function(){
+    main()
+}
 var numAsteroids = 20
 var asteroids = []
 var gameOver = true
@@ -29,8 +43,8 @@ function gameStart(){
 //Constructor Function for Asteroid Class
 function Asteroid(){
     this.radius = randomRange(15,2)
-    this.x = randomRange(canvas.width - this.radius, this.radius)
-    this.y = randomRange(canvas.height - this.radius, this.radius) - canvas.height
+    this.x = randomRange(-canvas.width + this.radius, this.radius)
+    this.y = randomRange(-canvas.height + this.radius, this.radius)-canvas.height
     this.vy = randomRange(10, 5)
     this.color = "white"
 
@@ -38,7 +52,7 @@ function Asteroid(){
         ctx.save()
         ctx.beginPath()
         ctx.fillStyle = this.color
-        ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI, true)
+        ctx.drawImage(asteroidSprite,-this.y,-this.x,50,50)
         ctx.closePath()
         ctx.fill()
         ctx.restore()
@@ -159,18 +173,13 @@ function PlayerShip(){
         }
         ctx.fillStyle = "red"
         ctx.beginPath()
-        ctx.moveTo(0, -10)
-        ctx.lineTo(10, 10)
-        ctx.lineTo(-10, 10)
-        ctx.lineTo(0, -10)
-        ctx.closePath()
-        ctx.fill();
+        ctx.drawImage(shipSprite,0,0)
         ctx.restore() 
     }
 
     this.move = function(){
-        this.x += this.vx
-        this.y += this.vy
+        this.x -= this.vx
+        this.y -= this.vy
 
         //bottom boundary of screen
         if(this.y > canvas.height - this.h/2){
@@ -199,40 +208,32 @@ function PlayerShip(){
 
 //Main Screen
 gameStates[0] = function(){
-    ctx.save()
-    ctx.font = "30px Arial"
-    ctx.fillStyle = "white"
-    ctx.textAlign = "center"
-    ctx.fillText("Asteroid Avoider", canvas.width/2, canvas.height/2-30)
-    ctx.font = "15px Arial"
-    ctx.fillText("Press Space to Start", canvas.width/2, canvas.height/2 + 20)
-    ctx.restore()
-
+    ctx.drawImage(StartScreen,0,0)
 }
 
 //Game Screen
 gameStates[1] = function(){
     //code for displaying score
     ctx.save()
-    ctx.font = "15px Arial"
+    ctx.font = "15px Roboto Mono"
     ctx.fillStyle = "white"
     ctx.fillText("Score: " + score.toString(), canvas.width - 150, 30)
     ctx.restore()
 
     //Vertical 
-    if(ship.up){
-        ship.vy = -10
+    if(ship.right){
+        ship.vx = -3
     }else{
-        ship.vy = 3
+        ship.vx = 3
     }
     
     //Horizontal Movement
-    if(ship.left){
-        ship.vx = -3
-    }else if(ship.right){
-        ship.vx = 3
+    if(ship.up){
+        ship.vy = 3
+    }else if(ship.down){
+        ship.vy = -3
     }else{
-        ship.vx = 0
+        ship.vy = 0
     }
 
     //Loops through all asteroids and can check their position
@@ -274,26 +275,26 @@ gameStates[2] = function(){
     if(score > highScore){
         //set a new high score
         highScore = score
-        ctx.save()
-        ctx.font = "30px Arial"
+        ctx.save() 
+        ctx.font = "30px Roboto Mono"
         ctx.fillStyle = "white"
         ctx.textAlign = "center"
         ctx.fillText("Game Over, your high score score was: " + score.toString() , canvas.width/2, canvas.height/2-60)
         ctx.fillText("Your new high score is: " + highScore.toString() , canvas.width/2, canvas.height/2-30)
         ctx.fillText("New Record", canvas.width/2, canvas.height/2)
-        ctx.font = "15px Arial"
+        ctx.font = "15px Roboto Mono"
         ctx.fillText("Press Space to Play Again", canvas.width/2, canvas.height/2 + 20)
         ctx.restore()
 
     }else{
         //keep same score new high score
         ctx.save()
-        ctx.font = "30px Arial"
+        ctx.font = "30px Roboto Mono"
         ctx.fillStyle = "white"
         ctx.textAlign = "center"
         ctx.fillText("Game Over, your score was: " + score.toString() , canvas.width/2, canvas.height/2-60)
         ctx.fillText("Your high score is: " + highScore.toString() , canvas.width/2, canvas.height/2-30)
-        ctx.font = "15px Arial"
+        ctx.font = "15px Roboto Mono"
         ctx.fillText("Press Space to Play Again", canvas.width/2, canvas.height/2 + 20)
         ctx.restore()
     }
