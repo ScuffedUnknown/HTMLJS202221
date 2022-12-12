@@ -246,10 +246,7 @@ gameState[1] = function () {
             return
             //alert("Hit asteroid Game Over")
         }
-        if (asteroids[i].y > canvas.height + asteroids[i].radius) {
-            asteroids[i].x = randomNumber(canvas.width - asteroids[i].radius, asteroids[i].radius)
-            asteroids[i].y = randomNumber(canvas.height - asteroids[i].radius, asteroids[i].radius) - canvas.height
-        }
+
         asteroids[i].y += asteroids[i].vy
         asteroids[i].drawAsteroid();
     }
