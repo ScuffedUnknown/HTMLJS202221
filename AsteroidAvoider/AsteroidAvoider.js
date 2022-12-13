@@ -16,9 +16,10 @@ StartScreen.src = "images/Start.png"
 StartScreen.onload = function(){
     main()
 }
-var poweredup = true
-var spawntime = 5
+var poweredup = false
+var spawntime = 10
 var time = 5
+var pickuptime = 5
 var numAsteroids = 20
 var asteroids = []
 var gameOver = true
@@ -65,18 +66,16 @@ function Asteroid(){
 
 }
 function PowerUp(){
-
-    this.vy = randomRange(10, 5)
     this.color = "Red"
 
     this.drawPowerUp = function(){
         this.x = randomRange(canvas.width,50)
         this.y = randomRange(canvas.height,50)
-        this.radius = randomRange(15,2)
+        this.radius = 3000 //randomRange(15,2)
         ctx.save()
         ctx.beginPath()
         ctx.fillStyle = this.color
-        ctx.arc(500,400,this.radius,0, 2 * Math.PI,true)
+        ctx.arc(this.x,this.y,this.radius,0, 2 * Math.PI,true)
         ctx.closePath()
         ctx.fill()
         ctx.restore()
@@ -119,6 +118,10 @@ function pressKeyDown(e){
                 asteroids = []
                 //resets score
                 score = 0
+                 poweredup = false
+                spawntime = 10
+                time = 5
+                 pickuptime = 5
                 gameStart()
                 main()
             }
@@ -137,7 +140,9 @@ function pressKeyDown(e){
     }
     
 }
-
+function RestartTime() {
+    spawntime = 10
+}
 function pressKeyUp(e){
     if(!gameOver){
         if (e.keyCode == 87) {
@@ -168,32 +173,11 @@ function PlayerShip(){
     this.down = false
     this.left = false
     this.right = false
-    this.flamelength = 30
+
 
     this.drawShip = function(){
        ctx.save()
         ctx.translate(this.x, this.y)
-        if(this.up || this.left || this.right){
-            ctx.save()
-            //Changes the drawing values to animate the flame
-            if(this.flamelength == 30){
-                this.flamelength = 20
-                ctx.fillStyle = "yellow"
-            }else{
-                
-                this.flamelength = 30
-                ctx.fillStyle = "orange"
-            }
-            ctx.beginPath()
-            ctx.moveTo(0, this.flamelength)
-            ctx.lineTo(5,5)
-            ctx.lineTo(-5,5)
-            ctx.lineTo(0,this.flamelength)
-            ctx.closePath()
-            ctx.fill()
-            ctx.restore()
-
-        }
         ctx.fillStyle = "red"
         ctx.beginPath()
         ctx.drawImage(shipSprite,0,0)
@@ -232,6 +216,7 @@ function PlayerShip(){
 //Main Screen
 gameStates[0] = function(){
     ctx.drawImage(StartScreen,0,0)
+
 }
 
 //Game Screen
@@ -243,10 +228,7 @@ gameStates[1] = function(){
     ctx.fillText("Score: " + score.toString(), canvas.width - 150, 30)
     ctx.restore()
     //powerup disapears instantly
-    if(spawntime==0){
-        pup.drawPowerUp()
-        spawntime = 5
-    }
+
     //Vertical 
     if(ship.right){
         ship.vx = -3
@@ -262,11 +244,17 @@ gameStates[1] = function(){
     }else{
         ship.vy = 0
     }
-
+        var dX = -ship.y - pup.x
+        var dY = -ship.x - pup.y
+        var distance = Math.sqrt((dX*dX)+(dY*dY))
+        if(detectCollision(distance, (ship.h/2 + pup.radius))){
+            console.log("Picked up powerup")
+            poweredup =true
+        }
     //Loops through all asteroids and can check their position
     for(var i = 0; i < asteroids.length; i++){
-        var dX = ship.x - asteroids[i].x
-        var dY = ship.y - asteroids[i].y
+        var dX = -ship.y - asteroids[i].x
+        var dY = -ship.x - asteroids[i].y
         var distance = Math.sqrt((dX*dX)+(dY*dY))
         if(!poweredup || time == 0){
         if(detectCollision(distance, (ship.h/2 + asteroids[i].radius))){
@@ -274,20 +262,20 @@ gameStates[1] = function(){
             gameOver = true
             currentState = 2
             main()
+            return
             
         } 
         
         //asteroids dont spawn on far edge
         if(asteroids[i].y > canvas.height + asteroids[i].radius){
             asteroids[i].y = randomRange(canvas.width + asteroids[i].radius, asteroids[i].radius)
-            asteroids[i].y = randomRange(canvas.height + asteroids[i].radius, asteroids[i].radius) - canvas.height
+            asteroids[i].y = -randomRange(canvas.height + asteroids[i].radius, asteroids[i].radius) - canvas.height
         }//powerup time doesnt tickdown until newe asteroids
-        poweredup = true
         time = 5
     }else{
         if(asteroids[i].y > canvas.height + asteroids[i].radius){
             asteroids[i].y = randomRange(canvas.width + asteroids[i].radius, asteroids[i].radius)
-            asteroids[i].y = randomRange(canvas.height + asteroids[i].radius, asteroids[i].radius) - canvas.height
+            asteroids[i].y = -randomRange(canvas.height + asteroids[i].radius, asteroids[i].radius) - canvas.height
         }
         time--
 
@@ -304,12 +292,21 @@ gameStates[1] = function(){
     if(!gameOver){
         ship.move()
         ship.drawShip()
+        if(spawntime==0){
+            pup.drawPowerUp()
+            setTimeout(RestartTime(),1000000)
+            }
+            if(time==0){
+                spawntime = 10
+            }
+
+        }
     }
 
     while(asteroids.length < numAsteroids){
         asteroids.push(new Asteroid())
     }
-}
+
 
 //Game Over
 gameStates[2] = function(){
@@ -326,6 +323,7 @@ gameStates[2] = function(){
         ctx.font = "15px Roboto Mono"
         ctx.fillText("Press Space to Play Again", canvas.width/2, canvas.height/2 + 20)
         ctx.restore()
+        
 
     }else{
         //keep same score new high score
@@ -366,12 +364,12 @@ function scoreTimer(){
     if(!gameOver){
         score++
         spawntime--
-        console.log(time)
+        console.log(spawntime)
         //using modulus  that returns remainder of a decimal
         //checks to see if remainder is divisble by 5
         if(score % 5 == 0){
             numAsteroids += 5
-            console.log(numAsteroids)
+            console.log()
         }
         setTimeout(scoreTimer, 1000)
     }
