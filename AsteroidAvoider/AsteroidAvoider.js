@@ -1,305 +1,377 @@
 var canvas = document.getElementById("canvas")
-
 var ctx = canvas.getContext('2d')
-
 var timer = requestAnimationFrame(main)
-
-var numAsteroid = 20
-
-var asteroids = [];
-var gameState = [];
-var ship = new PlayerShip()
+var shipSprite = new Image()
+shipSprite.src = "images/SHip.png"
+shipSprite.onload = function(){
+    main()
+}
+var asteroidSprite = new Image
+asteroidSprite.src = "images/asteroid.png"
+asteroidSprite.onload = function(){
+    main()
+}
+var StartScreen = new Image()
+StartScreen.src = "images/Start.png"
+StartScreen.onload = function(){
+    main()
+}
+var poweredup = false
+var spawntime = 10
+var time = 5
+var pickuptime = 5
+var numAsteroids = 20
+var asteroids = []
 var gameOver = true
+var gameStates = []
 var currentState = 0
 var score = 0
-var highscore = 0
+var highScore = 0
 
-function PlayerShip() {
-    this.x = canvas.width / 2
-    this.y = canvas.height / 2
-    this.width = 20
-    this.height = 20
+
+//utility functions
+function randomRange(high, low){
+    return Math.random() * (high-low) + low
+}
+
+function gameStart(){
+    //For Loop to create the instances of Asteroids
+    for(var i = 0; i < numAsteroids; i++){
+        asteroids[i] = new Asteroid()
+    }
+
+    //Create an instance of the PlayerShip
+    ship = new PlayerShip()
+    pup = new PowerUp()
+}
+
+//Constructor Function for Asteroid Class
+function Asteroid(){
+    this.radius = randomRange(15,2)
+    this.x = randomRange(-canvas.width + this.radius, this.radius)
+    this.y = randomRange(-canvas.height + this.radius, this.radius)-canvas.height
+    this.vy = randomRange(10, 5)
+    this.color = "white"
+
+    this.drawAsteroid = function(){
+        ctx.save()
+        ctx.beginPath()
+        ctx.fillStyle = this.color
+        ctx.drawImage(asteroidSprite,-this.y,-this.x)
+        ctx.closePath()
+        ctx.fill()
+        ctx.restore()
+
+    }
+
+}
+function PowerUp(){
+    this.color = "Red"
+
+    this.drawPowerUp = function(){
+        this.x = randomRange(canvas.width,50)
+        this.y = randomRange(canvas.height,50)
+        this.radius = 3000 //randomRange(15,2)
+        ctx.save()
+        ctx.beginPath()
+        ctx.fillStyle = this.color
+        ctx.arc(this.x,this.y,this.radius,0, 2 * Math.PI,true)
+        ctx.closePath()
+        ctx.fill()
+        ctx.restore()
+        console.log(this.x,this.y,this.radius)
+    }
+
+}
+
+
+//Setup Keyboard Event Handlers 
+document.addEventListener("keydown", pressKeyDown)
+document.addEventListener("keyup", pressKeyUp)
+
+function pressKeyDown(e){
+    if (!gameOver) {
+        if (e.keyCode == 87) {
+            ship.up = true
+        }
+        if (e.keyCode == 65) {
+            ship.left = true
+        }
+        if (e.keyCode == 68) {
+            ship.right = true
+        }
+        if (e.keyCode == 83) {
+            ship.down = true
+        }
+    }
+
+    if(gameOver){
+
+        //checking for spacebar
+        if(e.keyCode == 32){
+            if(currentState == 2){
+                //game over screen reatarts game
+                currentState = 0
+                //resets number of asteroids
+                numAsteroids = 20
+                //empties asteroids array
+                asteroids = []
+                //resets score
+                score = 0
+                 poweredup = false
+                spawntime = 10
+                time = 5
+                 pickuptime = 5
+                gameStart()
+                main()
+            }
+            else{
+                //main screen starts game 
+                gameStart()
+                currentState = 1
+                gameOver = false
+                main()
+                scoreTimer()
+                console.log("space")
+
+            }
+            
+        }
+    }
+    
+}
+function RestartTime() {
+    spawntime = 10
+}
+function pressKeyUp(e){
+    if(!gameOver){
+        if (e.keyCode == 87) {
+            ship.up = false
+        }
+        if (e.keyCode == 65) {
+            ship.left = false
+        }
+        if (e.keyCode == 68) {
+            ship.right = false
+        }
+        if (e.keyCode == 83) {
+            ship.down = false
+        } 
+    }
+    
+}
+
+//constructor function
+function PlayerShip(){
+    this.x = canvas.width/2
+    this.y = canvas.height/2
+    this.w = 20
+    this.h = 20
+    this.vx = 0
+    this.vy = 0
     this.up = false
     this.down = false
     this.left = false
     this.right = false
-    this.vx = 0
-    this.vy = 0
-    this.drawShip = function () {
-        ctx.save()
+
+
+    this.drawShip = function(){
+       ctx.save()
         ctx.translate(this.x, this.y)
-        ctx.fillStyle = 'red'
+        ctx.fillStyle = "red"
         ctx.beginPath()
-        ctx.moveTo(0, -10)
-        ctx.lineTo(10, 10)
-        ctx.lineTo(-10, 10)
-        ctx.lineTo(0, -10)
-        ctx.closePath()
-        ctx.fill()
-        ctx.restore()
+        ctx.drawImage(shipSprite,0,0)
+        ctx.restore() 
     }
-    this.moveShip = function () {
-        this.x += this.vx
-        this.y += this.vy
-        //boundaries
-        if (this.y > canvas.height - this.height / 2) {
-            this.y = canvas.height - this.height / 2
+
+    this.move = function(){
+        this.x -= this.vx
+        this.y -= this.vy
+
+        //bottom boundary of screen
+        if(this.y > canvas.height - this.h/2){
+            this.y = canvas.height - this.h/2
             this.vy = 0
         }
-        if (this.y < this.height / 2) {
-            this.y = this.height / 2
+        //top boundary of screen
+        if(this.y < this.h/2){
+            this.y = this.h/2
             this.vy = 0
-        }
-        if (this.x > canvas.width - this.width / 2) {
-            this.x = canvas.width - this.width / 2
-            this.vx = 0
         }
 
-        if (this.x < this.width / 2) {
-            this.x = this.width / 2
+        //right boundary of screen
+        if(this.x > canvas.width - this.w/2){
+            this.x = canvas.width - this.w/2
+            this.vx = 0
+        }
+        //left boundary of screen
+        if(this.x < this.w/2){
+            this.x = this.w/2
             this.vx = 0
         }
     }
+      
 }
 
-document.addEventListener('keydown', pressKeyDown)
-document.addEventListener('keyup', pressKeyUp)
+//Main Screen
+gameStates[0] = function(){
+    ctx.drawImage(StartScreen,0,0)
 
-function pressKeyDown(e) {
-    if (!gameOver) {
-        if (e.keyCode == 87) {
-            //ship goes up
-            ship.up = true
+}
+
+//Game Screen
+gameStates[1] = function(){
+    //code for displaying score
+    ctx.save()
+    ctx.font = "15px Roboto Mono"
+    ctx.fillStyle = "white"
+    ctx.fillText("Score: " + score.toString(), canvas.width - 150, 30)
+    ctx.restore()
+    //powerup disapears instantly
+
+    //Vertical 
+    if(ship.right){
+        ship.vx = -3
+    }else{
+        ship.vx = 3
+    }
+    
+    //Horizontal Movement
+    if(ship.up){
+        ship.vy = 3
+    }else if(ship.down){
+        ship.vy = -3
+    }else{
+        ship.vy = 0
+    }
+        var dX = -ship.y - pup.x
+        var dY = -ship.x - pup.y
+        var distance = Math.sqrt((dX*dX)+(dY*dY))
+        if(detectCollision(distance, (ship.h/2 + pup.radius))){
+            console.log("Picked up powerup")
+            poweredup =true
         }
-        if (e.keyCode == 65) {
-            //ship goes left
-            ship.left = true
+    //Loops through all asteroids and can check their position
+    for(var i = 0; i < asteroids.length; i++){
+        var dX = -ship.y - asteroids[i].x
+        var dY = -ship.x - asteroids[i].y
+        var distance = Math.sqrt((dX*dX)+(dY*dY))
+        if(!poweredup || time == 0){
+        if(detectCollision(distance, (ship.h/2 + asteroids[i].radius))){
+            console.log("hit asteroid")
+            gameOver = true
+            currentState = 2
+            main()
+            return
+            
+        } 
+        
+        //asteroids dont spawn on far edge
+        if(asteroids[i].y > canvas.height + asteroids[i].radius){
+            asteroids[i].y = randomRange(canvas.width + asteroids[i].radius, asteroids[i].radius)
+            asteroids[i].y = -randomRange(canvas.height + asteroids[i].radius, asteroids[i].radius) - canvas.height
+        }//powerup time doesnt tickdown until newe asteroids
+        time = 5
+    }else{
+        if(asteroids[i].y > canvas.height + asteroids[i].radius){
+            asteroids[i].y = randomRange(canvas.width + asteroids[i].radius, asteroids[i].radius)
+            asteroids[i].y = -randomRange(canvas.height + asteroids[i].radius, asteroids[i].radius) - canvas.height
         }
-        if (e.keyCode == 68) {
-            //ship goes  right
-            ship.right = true
-        }
-        if (e.keyCode == 83) {
-            //ship goes down
-            ship.down = true
-        }
-        if (e.keyCode == 38) {
-            //ship goes up
-            ship.up = true
-        }
-        if (e.keyCode == 37) {
-            //ship goes left
-            ship.left = true
-        }
-        if (e.keyCode == 39) {
-            //ship goes  right
-            ship.right = true
-        }
-        if (e.keyCode == 40) {
-            //ship goes down
-            ship.down = true
+        time--
+
+    }
+
+
+
+        if(!gameOver){
+            asteroids[i].y += asteroids[i].vy
+            asteroids[i].drawAsteroid()
         }
     }
-    if (gameOver) {
-
-        if (e.keyCode == 32) {
-            if (currentState == 2) {
-                //from gameover screen
-                currentState = 0
-                numAsteroid = 20
-                score = 0
-                asteroids = []
-               
-                gameStart()
-                main()
-            } else {
-                //from main menu
-                gameOver = false
-                currentState = 1
-                scoreTimer()
-                main()
+    
+    if(!gameOver){
+        ship.move()
+        ship.drawShip()
+        if(spawntime==0){
+            pup.drawPowerUp()
+            setTimeout(RestartTime(),1000000)
+            }
+            if(time==0){
+                spawntime = 10
             }
 
         }
     }
-}
 
-function pressKeyUp(e) {
-    if (!gameOver) {
-        if (e.keyCode == 87) {
-            //ship goes up
-            ship.up = false
-        }
-        if (e.keyCode == 65) {
-            //ship goes left
-            ship.left = false
-        }
-        if (e.keyCode == 68) {
-            //ship goes  right
-            ship.right = false
-        }
-        if (e.keyCode == 83) {
-            //ship goes down
-            ship.down = false
-        }
-        if (e.keyCode == 38) {
-            //ship goes up
-            ship.up = false
-        }
-        if (e.keyCode == 37) {
-            //ship goes left
-            ship.left = false
-        }
-        if (e.keyCode == 39) {
-            //ship goes  right
-            ship.right = false
-        }
-        if (e.keyCode == 40) {
-            //ship goes down
-            ship.down = false
-        }
+    while(asteroids.length < numAsteroids){
+        asteroids.push(new Asteroid())
     }
 
-}
-function Asteroid() {
-    this.radius = randomNumber(15, 2)
-    this.x = randomNumber(canvas.width - this.radius, this.radius)
-    this.y = randomNumber(canvas.height - this.radius, this.radius) - canvas.height;
-    this.vy = randomNumber(10, 5)
-    this.color = 'white'
 
-    this.drawAsteroid = function () {
+//Game Over
+gameStates[2] = function(){
+    if(score > highScore){
+        //set a new high score
+        highScore = score
+        ctx.save() 
+        ctx.font = "30px Roboto Mono"
+        ctx.fillStyle = "white"
+        ctx.textAlign = "center"
+        ctx.fillText("Game Over, your high score score was: " + score.toString() , canvas.width/2, canvas.height/2-60)
+        ctx.fillText("Your new high score is: " + highScore.toString() , canvas.width/2, canvas.height/2-30)
+        ctx.fillText("New Record", canvas.width/2, canvas.height/2)
+        ctx.font = "15px Roboto Mono"
+        ctx.fillText("Press Space to Play Again", canvas.width/2, canvas.height/2 + 20)
+        ctx.restore()
+        
+
+    }else{
+        //keep same score new high score
         ctx.save()
-        ctx.beginPath()
-        ctx.fillStyle = this.color
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, true)
-        ctx.closePath()
-        ctx.fill()
-        ctx.restore();
-
+        ctx.font = "30px Roboto Mono"
+        ctx.fillStyle = "white"
+        ctx.textAlign = "center"
+        ctx.fillText("Game Over, your score was: " + score.toString() , canvas.width/2, canvas.height/2-60)
+        ctx.fillText("Your high score is: " + highScore.toString() , canvas.width/2, canvas.height/2-30)
+        ctx.font = "15px Roboto Mono"
+        ctx.fillText("Press Space to Play Again", canvas.width/2, canvas.height/2 + 20)
+        ctx.restore()
     }
+    
+   
 }
 
+function main(){
+    //clear canvas 
+    //shipY-=1
 
-function randomNumber(high, low) {
-    return Math.random() * (high - low) + low
+    ctx.clearRect(0,0,canvas.width, canvas.height)
+
+    gameStates[currentState]()
+
+    if(!gameOver){
+        timer = requestAnimationFrame(main)
+    }
+    
 }
-function detectCollsion(distance, calcDistance) {
+
+function detectCollision(distance, calcDistance){
     return distance < calcDistance
 }
-function scoreTimer() {
-    if (!gameOver) {
+
+//Timer for Score
+function scoreTimer(){
+    if(!gameOver){
         score++
-        if (score % 5 == 0) {
-            numAsteroid += 10
-
-
+        spawntime--
+        console.log(spawntime)
+        //using modulus  that returns remainder of a decimal
+        //checks to see if remainder is divisble by 5
+        if(score % 5 == 0){
+            numAsteroids += 5
+            console.log()
         }
         setTimeout(scoreTimer, 1000)
     }
-}
 
-
-//gamestatemmoment
-gameState[0] = function () {
-    ctx.save()
-    ctx.font = '30px Arial'
-    ctx.fillStyle = 'white'
-    ctx.textAlign = 'center'
-    ctx.fillText("Asteroid Avoider", canvas.width / 2, canvas.height / 2 - 30)
-    ctx.font = '30px Arial'
-    ctx.fillText("PRESS SPACE TO START", canvas.width / 2, canvas.height / 2 + 20)
-}
-gameState[1] = function () {
-    ctx.save()
-    ctx.font = '15px Arial'
-    ctx.fillStyle = 'white'
-    ctx.fillText('Score: ' + score.toString(), canvas.width - 150, 30)
-    ctx.restore()
-    //movement
-    if (ship.up) {
-        ship.vy = -10
-    } else {
-        ship.vy = 3
-    }
-
-    if (ship.left) {
-        ship.vx = -5
-
-    } else if (ship.right) {
-        ship.vx = 5
-    } else {
-        ship.vx = 0
-    }
-
-
-
-    for (var i = 0; i < asteroids.length; i++) {
-        var dX = ship.x - asteroids[i].x
-        var dY = ship.y - asteroids[i].y
-        var distance = Math.sqrt((dX * dX) + (dY * dY))
-
-        if (detectCollsion(distance, (ship.height / 2 + asteroids[i].radius))) {
-            gameOver = true
-            currentState = 2
-            main();
-            return
-            //alert("Hit asteroid Game Over")
-        }
-        if (asteroids[i].y > canvas.height + asteroids[i].radius) {
-            asteroids[i].x = randomNumber(canvas.width - asteroids[i].radius, asteroids[i].radius)
-            asteroids[i].y = randomNumber(canvas.height - asteroids[i].radius, asteroids[i].radius) - canvas.height
-        }
-        asteroids[i].y += asteroids[i].vy
-        asteroids[i].drawAsteroid();
-    }
-    ship.moveShip()
-    ship.drawShip();
-
-    while (asteroids.length < numAsteroid) {
-        //add and create new asteroids
-        asteroids.push(new Asteroid());
-    }
-}
-gameState[2] = function () {
-    if (score > highscore) {
-        highscore = score
-        ctx.save()
-        ctx.fillStyle = 'white'
-        ctx.font = '30px Arial'
-        ctx.textAlign = 'center'
-        ctx.fillText('You Crashed, your score was:' + score.toString(), canvas.width / 2, canvas.height / 2 - 60)
-        ctx.fillText('Your new high score is:' + highscore.toString(), canvas.width / 2, canvas.height / 2 - 30)
-        ctx.fillText('New Record:' + highscore.toString(), canvas.width / 2, canvas.height / 2)
-        ctx.font = '15px Arial'
-        ctx.fillText("PRESS SPACE TO RESTART", canvas.width / 2, canvas.height / 2 + 20)
-        ctx.restore()
-
-    }
-    else {
-        ctx.save()
-        ctx.fillStyle = 'white'
-        ctx.font = '30px Arial'
-        ctx.textAlign = 'center'
-        ctx.fillText('You Crashed, your score was:' + score.toString(), canvas.width / 2, canvas.height / 2 - 60)
-        ctx.fillText('Your high score is:' + highscore.toString(), canvas.width / 2, canvas.height / 2 - 30)
-        ctx.font = '15px Arial'
-        ctx.fillText("PRESS SPACE TO RESTART", canvas.width / 2, canvas.height / 2 + 20)
-        ctx.restore()
-    }
-}
-
-function main() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-    gameState[currentState]();
-    if (!gameOver) {
-        timer = requestAnimationFrame(main)
-    }
-
-}
-function gameStart() {
-    for (var i = 0; i < numAsteroid; i++) {
-        asteroids[i] = new Asteroid();
-    }
-    ship = new PlayerShip()
 }
